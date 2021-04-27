@@ -23,6 +23,7 @@ build-iPhoneSimulator/
 
 **/node_modules/*
 node_modules
+java_pid632.hprof
 
 ## Specific to RubyMotion (use of CocoaPods):
 #
