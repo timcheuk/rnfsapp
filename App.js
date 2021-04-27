@@ -25,6 +25,12 @@ import UINavigator from './src/UINavigator';
 
 import LoginScreen3 from './src/login/screen3';
 
+import { Settings, LoginButton, AccessToken, LoginManager, GraphRequest, GraphRequestManager } from 'react-native-fbsdk-next';
+
+// Ask for consent first if necessary
+// Possibly only do this for iOS if no need to handle a GDPR-type flow
+//Settings.initializeSDK();
+
 //import { createStackNavigator } from '@react-navigation/stack';
 
 /*const MyWebView = ({children, title}): Node => {
@@ -53,8 +59,11 @@ export default class App extends Component {
         super(props);
         this.state = {
             userGoogleInfo: {},
+            userFacebookInfo: {},
             isLogin: false,
             usersession: {
+                platform: '',
+                photourl:'',
                 firstname: '',
                 lastname: '',
                 birth: '',
@@ -64,15 +73,47 @@ export default class App extends Component {
         };
     }
 
-    signIn = async () => {
+    getInfoFromToken = token => {
+        const PROFILE_REQUEST_PARAMS = {
+            fields: {
+                string: 'id, name, first_name, last_name, email, picture',
+            },
+        };
+        const profileRequest = new GraphRequest(
+            '/me',
+            { token, parameters: PROFILE_REQUEST_PARAMS },
+            (error, result) => {
+                if (error) {
+                    console.log('login info has error: ' + error);
+                } else {
+                    this.setState({
+                        userFacebookInfo: result,
+                        isLogin: true
+                    });
+                    let usersession = this.state.usersession;
+                    usersession.email = result.name;
+                    usersession.photourl = result.picture.data.url;
+                    this.setState({ usersession: usersession }, console.log('Login Event handler called. email:', this.state.usersession.email, 'photo', this.state.usersession.photourl));
+                    console.log('result:', result);
+                }
+            },
+        );
+        new GraphRequestManager().addRequest(profileRequest).start();
+    };
+
+    signInGoogle = async () => {
         console.log("Google sign in!");
         try {
             await GoogleSignin.hasPlayServices();
-            const userInfo = await GoogleSignin.signIn();
+            const userGoogleInfo = await GoogleSignin.signIn();
             this.setState({
-                userGoogleInfo: userInfo,
+                userGoogleInfo: userGoogleInfo,
                 isLogin: true
             })
+            let usersession = this.state.usersession;
+            usersession.email = userGoogleInfo.user.email;
+            usersession.photourl = userGoogleInfo.user.photo;
+            this.setState({ usersession: usersession }, console.log('Login Event handler called. email:', this.state.usersession.email, 'photo', this.state.usersession.photourl));
         }
         catch (error) {
             if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -91,6 +132,26 @@ export default class App extends Component {
             
         } 
     }
+
+    signInFacebook = async () => {
+        LoginManager.logInWithPermissions(["public_profile","email"]).then(
+            function (result) {
+                if (result.isCancelled) {
+                    console.log("Login cancelled");
+                } else {
+                    console.log(
+                        "Login success with permissions: " +
+                        result.grantedPermissions.toString()
+                    );
+                }
+            },
+            function (error) {
+                console.log("Login fail with error: " + error);
+            }
+        );
+    }
+
+    // Attempt a login using the Facebook login dialog asking for default permissions.
 
     signOut = async () => {
         try {
@@ -125,28 +186,54 @@ export default class App extends Component {
                         onLogout={this.HandleLogout}
                     />
                     :
-                    <LoginScreen3
+                    <View style={{ flex: 6, justifyContent: 'flex-start' }}>
+                        <LoginScreen3
                         onLogin={this.HandleLoginSuccess}
-                    />
+                    /></View>
                 }
 
 
-                {this.state.isLogin ? null : <GoogleSigninButton
-                    style={{ width: 192, height: 48 }}
-                    size={GoogleSigninButton.Size.Wide}
-                    color={GoogleSigninButton.Color.Dark}
-                    onPress={this.signIn} />}
-
+                {this.state.isLogin ? null : 
+                    <View style={styles.buttoncontainer}>
+                        <View style={styles.buttonContainer2}>
+                            <GoogleSigninButton
+                                style={{ width: 192, height: 48 }}
+                                size={GoogleSigninButton.Size.Wide}
+                                color={GoogleSigninButton.Color.Dark}
+                                onPress={this.signInGoogle} />
+                        </View>
+                        <View style={styles.buttonContainer2}>
+                            <LoginButton
+                                style={{ width: 192, height: 41 }}
+                                onPress={this.signInFacebook}
+                                onLoginFinished={
+                                    (error, result) => {
+                                        if (error) {
+                                            console.log("login has error: " + result.error);
+                                        } else if (result.isCancelled) {
+                                            console.log("login is cancelled.");
+                                        } else {
+                                            AccessToken.getCurrentAccessToken().then(data => {
+                                                const accessToken = data.accessToken.toString();
+                                                this.getInfoFromToken(accessToken);
+                                            });
+                                        }
+                                    }
+                                }
+                                onLogoutFinished={() => this.setState({ userFacebookInfo: {} })} />
+                        </View>
+                    </View>
+                }
                 {this.state.isLogin ?
                     <View>
-                        <Text>{this.state.userGoogleInfo.user.name}</Text>
-                        <Text>{this.state.userGoogleInfo.user.email}</Text>
+
+                        <Text>{this.state.usersession.email}</Text>
                         <Image
-                            style={{ width: 100, height: 100 }}
-                            source={{uri:this.state.userGoogleInfo.user.photo}}
+                            style={{ width: 50, height: 50 }}
+                            source={this.state.usersession.photourl ? { uri: this.state.usersession.photourl } : null}
                         />
                     </View> :
-                    <Text>No Sign in</Text>
+                    null
                 }
             </SafeAreaView>
         );
@@ -197,7 +284,16 @@ const styles = StyleSheet.create({
   testPickerContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-  },
+    },
+    buttoncontainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonContainer2: {
+        flex: 1,
+    }
 });
 
 //export default App;

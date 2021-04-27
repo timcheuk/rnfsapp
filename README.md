@@ -130,3 +130,39 @@ dependencies {
 
 ### Update android/build.gradle with
 npm install --save react-native-fbsdk-next
+
+
+
+https://developers.facebook.com/apps/212203283668987/fb-login/quickstart/
+
+Reg a new facebook app
+
+Enter the key tool and input 
+
+keytool -exportcert -alias androiddebugkey -keystore "your_project_path\android\app\debug.keystore" | "your_openssl_path\bin\openssl" sha1 -binary | "your_openssl_path\bin\openssl" base64
+
+Enter the 密鑰雜湊 key hash to web panel.
+
+Set up your string.xml and AndroidManifest.xml 
+
+Add the following to the `dependencies {}` section of your `build.gradle (module: app)` file to compile the latest version of the Facebook SDK:
+
+```code
+implementation 'com.facebook.android:facebook-android-sdk:[5,6)'
+```
+
+log application event
+
+add facebook Login button
+
+create CallbackManager.Factory.create
+
+All FacebookSDK login and share events should send on ActivityResult and send to callbackManager.
+
+Find your App ID and App secret on the developer Settings -> Basic 
+
+Enable your Firebase facebook authentication with App ID and App secret.
+
+https://github.com/thebergamo/react-native-fbsdk-next
+
+Follow this to add login button and login function.

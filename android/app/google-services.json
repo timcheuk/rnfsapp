@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "13179624366",
+    "project_id": "mytestapp-1619170302993",
+    "storage_bucket": "mytestapp-1619170302993.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:13179624366:android:09ae4ecea5c1717c07c63f",
+        "android_client_info": {
+          "package_name": "com.rnfsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "13179624366-n0br6ahevpve3ojgd1r57j6j423dfvgf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rnfsapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "13179624366-m918g6op184edoq5jjb3f3lp3our49ra.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALmnTluhD4gtpM7k0oiDTL6RHvml39R-o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "13179624366-77prgnv2f3flpmv3v8gackst9l3dan00.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

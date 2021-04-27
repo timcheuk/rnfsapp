@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">rnfsapp</string>
+	<string name="facebook_app_id">212203283668987</string> <string name="fb_login_protocol_scheme">fb212203283668987</string>
+
 </resources>
