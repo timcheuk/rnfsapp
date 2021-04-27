@@ -21,8 +21,6 @@
 build-iPhoneOS/
 build-iPhoneSimulator/
 
-**/node_modules/*
-node_modules
 
 ## Specific to RubyMotion (use of CocoaPods):
 #
