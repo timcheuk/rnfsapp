@@ -215,7 +215,7 @@ export default class App extends Component {
         return (
             <SafeAreaView style={styles.container}>
                 {this.state.isLogin ?
-                    <View style={{ flex: 6, justifyContent: 'flex-start' }}>
+                    <View style={{ flex: 9, justifyContent: 'flex-start' }}>
                         <UINavigator
                             usersession={this.state.usersession}
                             onLogout={this.HandleLogout}
@@ -229,7 +229,7 @@ export default class App extends Component {
                 }
 
                 {this.state.isLogin ?
-                    <View style={{ flex: 1 }}>
+                    <View style={styles.buttoncontainer}>
                         <Text>{this.state.usersession.email}</Text>
                         <Image
                             style={{ width: 50, height: 50 }}
