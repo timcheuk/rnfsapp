@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 
-import Alerts from '../src/Alerts';
-import Uploads from '../src/Uploads';
-import Messaging from '../src/Messaging';
-import LocalPageLoad from '../src/LocalPageLoad';
+import Alerts from '../src/views/Alerts';
+import Uploads from '../src/views/Uploads';
+import Messaging from '../src/views/Messaging';
+import LocalPageLoad from '../src/views/LocalPageLoad';
+import YellowCalendar from '../src/views/YellowCalendar';
 import { Header, SubHeader } from '../src/Header';
 
 import {
@@ -30,7 +31,9 @@ import {
 const Drawer = createDrawerNavigator();
 
 class UINavigator extends Component {
-    state = {};
+    state = {
+
+    };
 
     HomeScreen = () => {
 
@@ -45,12 +48,13 @@ class UINavigator extends Component {
         );
     }
 
-    NotificationsScreen = ({ navigation }) => {
+    CalendarScreen = ({ navigation }) => {
         return (
-            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start' }}>
-                <Header title="Notification" />
-                <SubHeader title="Standard Notification" />
-                <Button onPress={() => navigation.goBack()} title="Go back home" />
+            <View style={{ flex: 1 }}>
+                <Header title="Calendar" />
+                <SubHeader title="Calendar" />
+                <YellowCalendar
+                    usersession={this.props.usersession}/>
             </View>
         );
     }
@@ -139,7 +143,7 @@ class UINavigator extends Component {
             <NavigationContainer>
                 <Drawer.Navigator initialRouteName="Home" drawerContent={props => <this.CustomDrawerContent {...props} />}>
                     <Drawer.Screen name="Home" component={this.HomeScreen} />
-                    <Drawer.Screen name="Notifications" component={this.NotificationsScreen} />
+                    <Drawer.Screen name="Calendar" component={this.CalendarScreen} />
                     <Drawer.Screen name="Alerts" component={this.AlertsScreen} />
                     {Platform.OS === 'android' && (
                         <Drawer.Screen name="Uploads" component={this.UploadsScreen} />

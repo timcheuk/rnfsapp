@@ -25,6 +25,10 @@ build-iPhoneSimulator/
 node_modules
 java_pid632.hprof
 
+##Security ignore the android production keystore for real release
+android/app/production.keystore
+android/app/build.gradle
+
 ## Specific to RubyMotion (use of CocoaPods):
 #
 # We recommend against adding the Pods directory to your .gitignore. However

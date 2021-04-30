@@ -6,7 +6,8 @@
  * @flow strict-local
  */
 
-import React, {Component} from 'react';
+import React, { Component } from 'react';
+
 //import type {Node} from 'react';
 import {
   Image,
@@ -15,6 +16,8 @@ import {
   SafeAreaView,
   StyleSheet,
 } from 'react-native';
+
+import MyCalendar from './src/calendar/MyCalendar';
 
 //for react-native-elements
 //import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -29,7 +32,7 @@ import { Settings, LoginButton, AccessToken, LoginManager, GraphRequest, GraphRe
 
 // Ask for consent first if necessary
 // Possibly only do this for iOS if no need to handle a GDPR-type flow
-//Settings.initializeSDK();
+Settings.initializeSDK();
 
 //import { createStackNavigator } from '@react-navigation/stack';
 
@@ -91,9 +94,9 @@ export default class App extends Component {
                         isLogin: true
                     });
                     let usersession = this.state.usersession;
-                    usersession.email = result.name;
+                    usersession.email = result.email;
                     usersession.photourl = result.picture.data.url;
-                    this.setState({ usersession: usersession }, console.log('Login Event handler called. email:', this.state.usersession.email, 'photo', this.state.usersession.photourl));
+                    this.setState({ usersession: usersession }, console.log('Facebook Login Event handler called. email:', this.state.usersession.email, 'photo', this.state.usersession.photourl));
                     console.log('result:', result);
                 }
             },
@@ -113,7 +116,7 @@ export default class App extends Component {
             let usersession = this.state.usersession;
             usersession.email = userGoogleInfo.user.email;
             usersession.photourl = userGoogleInfo.user.photo;
-            this.setState({ usersession: usersession }, console.log('Login Event handler called. email:', this.state.usersession.email, 'photo', this.state.usersession.photourl));
+            this.setState({ usersession: usersession }, console.log('Google Login Event handler called. email:', this.state.usersession.email, 'photo', this.state.usersession.photourl));
         }
         catch (error) {
             if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -133,9 +136,25 @@ export default class App extends Component {
         } 
     }
 
+    /*
+     * signInFacebook = (error, result) => {
+        if (error) {
+            console.log("login has error: " + result.error);
+        } else if (result.isCancelled) {
+            console.log("login is cancelled.");
+        } else {
+            AccessToken.getCurrentAccessToken().then(data => {
+                const accessToken = data.accessToken.toString();
+                this.getInfoFromToken(accessToken);
+            });
+        }
+    }*/
+
+    //if you need access to facebook email, change the login like this.
     signInFacebook = async () => {
+        console.log("Facebook sign in Pressed");
         LoginManager.logInWithPermissions(["public_profile","email"]).then(
-            function (result) {
+            (result)=> {
                 if (result.isCancelled) {
                     console.log("Login cancelled");
                 } else {
@@ -143,9 +162,13 @@ export default class App extends Component {
                         "Login success with permissions: " +
                         result.grantedPermissions.toString()
                     );
+                    AccessToken.getCurrentAccessToken().then(data => {
+                        const accessToken = data.accessToken.toString();
+                        this.getInfoFromToken(accessToken);
+                    });
                 }
             },
-            function (error) {
+            (error)=> {
                 console.log("Login fail with error: " + error);
             }
         );
@@ -153,11 +176,22 @@ export default class App extends Component {
 
     // Attempt a login using the Facebook login dialog asking for default permissions.
 
-    signOut = async () => {
+    signOutGoogle = async () => {
         try {
             await GoogleSignin.revokeAccess();
             await GoogleSignin.signOut();
-            this.setState({ user: null }); // Remember to remove the user from your app's state as well
+            this.setState({ user: null }); 
+            this.setState({ userGoogleInfo: null });
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    signOutFacebook = async () => {
+        try {
+            LoginManager.logOut();
+            this.setState({ user: null }); 
+            this.setState({ userFacebookInfo: {} })
         } catch (error) {
             console.error(error);
         }
@@ -167,7 +201,7 @@ export default class App extends Component {
         let usersession = this.state.usersession;
         usersession.email = _responsejson.email;
         usersession.token = _responsejson.token;
-        this.setState({ usersession: usersession }, console.log('Login Event handler called. email:', this.state.usersession.email, 'token', this.state.usersession.token));
+        this.setState({ usersession: usersession }, console.log('Email Login Event handler called. email:', this.state.usersession.email, 'token', this.state.usersession.token));
 
         this.setState({ isLogin: true });
     };
@@ -181,19 +215,27 @@ export default class App extends Component {
         return (
             <SafeAreaView style={styles.container}>
                 {this.state.isLogin ?
-                    <UINavigator
-                        usersession={this.state.usersession}
-                        onLogout={this.HandleLogout}
-                    />
+                    <View style={{ flex: 6, justifyContent: 'flex-start' }}>
+                        <UINavigator
+                            usersession={this.state.usersession}
+                            onLogout={this.HandleLogout}
+                        />
+                    </View>
                     :
                     <View style={{ flex: 6, justifyContent: 'flex-start' }}>
                         <LoginScreen3
-                        onLogin={this.HandleLoginSuccess}
-                    /></View>
+                            onLogin={this.HandleLoginSuccess}
+                        /></View>
                 }
 
-
-                {this.state.isLogin ? null : 
+                {this.state.isLogin ?
+                    <View style={{ flex: 1 }}>
+                        <Text>{this.state.usersession.email}</Text>
+                        <Image
+                            style={{ width: 50, height: 50 }}
+                            source={this.state.usersession.photourl ? { uri: this.state.usersession.photourl } : null}
+                        />
+                    </View> :
                     <View style={styles.buttoncontainer}>
                         <View style={styles.buttonContainer2}>
                             <GoogleSigninButton
@@ -205,35 +247,10 @@ export default class App extends Component {
                         <View style={styles.buttonContainer2}>
                             <LoginButton
                                 style={{ width: 192, height: 41 }}
-                                onPress={this.signInFacebook}
-                                onLoginFinished={
-                                    (error, result) => {
-                                        if (error) {
-                                            console.log("login has error: " + result.error);
-                                        } else if (result.isCancelled) {
-                                            console.log("login is cancelled.");
-                                        } else {
-                                            AccessToken.getCurrentAccessToken().then(data => {
-                                                const accessToken = data.accessToken.toString();
-                                                this.getInfoFromToken(accessToken);
-                                            });
-                                        }
-                                    }
-                                }
-                                onLogoutFinished={() => this.setState({ userFacebookInfo: {} })} />
+                                onLoginFinished={this.signInFacebook}
+                                onLogoutFinished={this.signOutFacebook} />
                         </View>
                     </View>
-                }
-                {this.state.isLogin ?
-                    <View>
-
-                        <Text>{this.state.usersession.email}</Text>
-                        <Image
-                            style={{ width: 50, height: 50 }}
-                            source={this.state.usersession.photourl ? { uri: this.state.usersession.photourl } : null}
-                        />
-                    </View> :
-                    null
                 }
             </SafeAreaView>
         );

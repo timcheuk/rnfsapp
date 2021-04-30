@@ -329,7 +329,7 @@ export default class LoginScreen2 extends Component<{}, LoginScreen2State> {
                 buttonStyle={styles.loginButton}
                 containerStyle={{ marginTop: 32, flex: 0 }}
                 activeOpacity={0.8}
-                title={isLoginPage ? 'LOGIN' : 'SIGN UP'}
+                title={isLoginPage ? '登錄' : '註冊'}
                 //onPress={isLoginPage ? () => this.props.onLogin(this.state.email, this.state.password) : () => this.props.onSignUp(this.state.email, this.state.password)}
                 onPress={isLoginPage ? this.checkLogin : this.checkSignUp}
                 titleStyle={styles.loginTextButton}
@@ -340,7 +340,7 @@ export default class LoginScreen2 extends Component<{}, LoginScreen2State> {
             <View style={styles.helpContainer}>
               <Button
                 title={'客戶支援'}
-                titleStyle={{ color: 'white' }}
+                titleStyle={{ color: 'floralwhite' }}
                 buttonStyle={{ backgroundColor: 'transparent' }}
                 onPress={() => Alert.alert('🤔', '忘記密碼')}
               />
@@ -437,8 +437,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   helpContainer: {
-    height: 64,
+    height: 50,
     alignItems: 'center',
-    justifyContent: 'center',
   },
 });

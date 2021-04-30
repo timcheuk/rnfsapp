@@ -63,11 +63,16 @@ DELETE yarn.lock and package.json.lock
 
 `npm install --save react-native-vector-icons`
 
+//this one react-native-vector-icons need to manual link to android
+
+`npx react-native link react-native-vector-icons`
+
 `npm install --save react-native-reanimated`
 
 `npm install --save react-native-gesture-handler`
 
-#### 3. Update for google authentication
+3. Update for google authentication
+
 ### Update android/build.gradle with
 
 android/build.gradle
@@ -129,9 +134,9 @@ dependencies {
 }
 
 ### Update android/build.gradle with
+```
 npm install --save react-native-fbsdk-next
-
-
+```
 
 https://developers.facebook.com/apps/212203283668987/fb-login/quickstart/
 
@@ -166,3 +171,37 @@ Enable your Firebase facebook authentication with App ID and App secret.
 https://github.com/thebergamo/react-native-fbsdk-next
 
 Follow this to add login button and login function.
+
+### Build android apk
+
+`keytool -genkey -v -keystore releasekey.keystore -alias your_key_alias -keyalg RSA -keysize 2048 -validity 10000`
+
+configure android/app/build.gradle
+
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    	release {
+    	  storeFile file('releasekey.keystore')
+    	  storePassword 'store_password'
+    	  keyAlias 'your_key_alias'
+    	  keyPassword 'key_password'
+    	}
+    }
+
+`gradlew bundleRelease `
+
+OR
+
+`gradlew assembleRelease`
+
+#### Test release version 
+
+--variant=release only available if you completed the release build before.
+
+`npx react-native run-android --variant=release`
+
